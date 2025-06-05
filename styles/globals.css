@@ -53,6 +53,7 @@ header h1 {
     flex-grow: 1;
     padding: 16px;
     overflow-y: auto;
+    /* max-height: 60vh; */
     display: flex;
     flex-direction: column;
 }

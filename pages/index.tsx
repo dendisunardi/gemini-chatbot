@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { MessageComponent } from '../src/components/Message';
 import { useAI } from '../src/hooks/useAI';
 import { useChat } from '../src/hooks/useChat';
@@ -9,6 +9,16 @@ export default function ChatPage() {
     const { ai, error } = useAI();
     const { messages, inputValue, setInputValue, isLoading, handleSendMessage } = useChat(ai);
     const chatOutputRef = useRef<HTMLDivElement>(null);
+
+    // Scroll to bottom when messages change
+    const scrollToBottom = () => {
+        if (chatOutputRef.current) {
+            chatOutputRef.current.scrollTo({
+                top: chatOutputRef.current.scrollHeight,
+                behavior: 'smooth',
+            });
+        }
+    };
 
     return (
         <>
@@ -21,10 +31,27 @@ export default function ChatPage() {
                 <header>
                     <h1>Dendi Chatbot</h1>
                 </header>
-                <main id="chat-container" aria-live="polite">
-                    <div id="chat-output" ref={chatOutputRef}>
-                        {messages.map(msg => (
-                            <MessageComponent key={msg.id} message={msg} />
+                <main 
+                    id="chat-container"
+                    aria-live="polite"
+                    aria-busy={isLoading}
+                    aria-label="Chat messages"
+                    ref={chatOutputRef}
+                    style={{
+                        overflowY: 'auto',
+                        height: 'calc(100vh - 150px)', // Adjust based on header/footer height
+                        padding: '1rem',
+                    }}
+                >
+                    <div id="chat-output">
+                        {messages.map((msg, idx) => (
+                            <MessageComponent 
+                                key={msg.id} 
+                                message={msg}
+                                onUpdate={
+                                    idx === messages.length - 1 ? scrollToBottom : undefined 
+                                }
+                            />
                         ))}
                     </div>
                     {isLoading && (
